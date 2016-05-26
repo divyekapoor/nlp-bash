@@ -23,17 +23,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-iconv -c -f utf-8 -t ascii JaneEyre.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > JaneEyre.normalized.txt &
-iconv -c -f utf-8 -t ascii WutheringHeights.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > WutheringHeights.normalized.txt &
-wait
+set -e
+
+iconv -c -f utf-8 -t ascii JaneEyre.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > JaneEyre.normalized.txt
+iconv -c -f utf-8 -t ascii WutheringHeights.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > WutheringHeights.normalized.txt
 cat JaneEyre.normalized.txt WutheringHeights.normalized.txt > CombinedWorks.normalized.txt
 
-cat JaneEyre.normalized.txt | sort | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < JaneEyre.normalized.txt); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort  > JaneEyre.report.txt &
+cat JaneEyre.normalized.txt | sort | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < JaneEyre.normalized.txt); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort  > JaneEyre.report.txt
 
-cat WutheringHeights.normalized.txt | sort | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < WutheringHeights.normalized.txt); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort > WutheringHeights.report.txt &
+cat WutheringHeights.normalized.txt | sort | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < WutheringHeights.normalized.txt); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort > WutheringHeights.report.txt
 
-cat CombinedWorks.normalized.txt | sort | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort > CombinedWorks.report.txt &
-wait
+cat CombinedWorks.normalized.txt | sort | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort > CombinedWorks.report.txt
 
 join -t, CombinedWorks.report.txt JaneEyre.report.txt  > JoinedFrequencies.partial.txt
 join -t, -v1 CombinedWorks.report.txt JaneEyre.report.txt | sed -e 's/$/,0,0/' >> JoinedFrequencies.partial.txt
