@@ -83,7 +83,7 @@ sort < JoinedFrequencies.all.tmp > JoinedFrequencies.all_sorted.tmp
 # Step 2: Sort numerically according to the difference. Words with a positive
 # score are more distinctive for JaneEyre. Words with a negative score are more
 # so for WutheringHeights. Save to a temp file.
-awk -F, '{ print $4 - $6 " " $1 }' < JoinedFrequencies.all_sorted.tmp | sort -n > DistinctiveWords.report.txt
+awk -F, '{ printf "%.8f %s\n", $4 - $6, $1 }' < JoinedFrequencies.all_sorted.tmp | sort -n > DistinctiveWords.report.txt
 
 echo "Top 10 words by frequency for JaneEyre"
 echo "======================================"
