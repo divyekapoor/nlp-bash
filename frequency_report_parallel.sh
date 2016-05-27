@@ -107,4 +107,4 @@ echo "======================================"
 head -10 DistinctiveWords.report.txt | awk '{ print $2 }'
 
 # Clean up temp files.
-# rm *.tmp
+rm *.tmp
