@@ -86,4 +86,6 @@ user    0m9.652s
 sys    0m0.137s
 ```
 
-which uses about 3% more CPU but gets work done 1.2x faster. Most of the time is spent in the expensive preprocessing and sorting of large files.
+which uses about 3% more CPU but gets work done 1.2x faster. Most of the time
+is spent in the expensive sorting of large files. Times are annotated in the
+`frequency_report_parallel.sh` comments.
