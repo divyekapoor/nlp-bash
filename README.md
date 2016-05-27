@@ -3,10 +3,11 @@ NLP-Bash
 
 Do a bag of words analysis of English classics like Jane Eyre and Wuthering Heights in Bash!
 
-See a fully commented script in: `frequency_report.sh`.
+See a fully commented script in: `frequency_report.sh`. A parallel version is in `frequency_report_parallel.sh`
 
 ```bash
 $ ./frequency_report.sh
+$ ./frequency_report_parallel.sh
 ```
 
 License
@@ -18,7 +19,7 @@ Output
 ======
 
 ```bash
-$ ./frequency_report.sh
+$ time ./frequency_report.sh
 
 Top 10 words by frequency for JaneEyre
 ======================================
@@ -76,3 +77,13 @@ real    0m8.202s
 user    0m9.347s
 sys    0m0.120s
 ```
+
+The time for the parallel version is:
+
+```bash
+real    0m6.767s
+user    0m9.652s
+sys    0m0.137s
+```
+
+which uses about 3% more CPU but gets work done 1.2x faster. Most of the time is spent in the expensive preprocessing and sorting of large files.
