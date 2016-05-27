@@ -36,9 +36,6 @@ set -e
 iconv -c -f utf-8 -t ascii JaneEyre.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > JaneEyre.normalized.tmp
 iconv -c -f utf-8 -t ascii WutheringHeights.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > WutheringHeights.normalized.tmp
 
-# Concatenate the two normalized texts into a single CombinedWork.
-cat JaneEyre.normalized.tmp WutheringHeights.normalized.tmp > CombinedWorks.normalized.tmp
-
 # Gather statistics from each normalized work in the following format:
 # word,word_frequency,relative_frequency
 # Step 1: Sort the wordlist from each text.
@@ -46,8 +43,8 @@ cat JaneEyre.normalized.tmp WutheringHeights.normalized.tmp > CombinedWorks.norm
 # Step 3a: Using wc, calculate the total number of words in the normalized text and insert it into the awk script.
 # Step 3b: awk generates a CSV file in the format: |word,freq,relative_freq|.
 # Step 4: Sort each line alphabetically and save it to a temp file. This generates a temp file sorted by words.
-sort < JaneEyre.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < JaneEyre.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t,  > JaneEyre.report.tmp
-sort < WutheringHeights.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < WutheringHeights.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t, > WutheringHeights.report.tmp
+sort JaneEyre.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < JaneEyre.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t,  > JaneEyre.report.tmp
+sort WutheringHeights.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < WutheringHeights.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t, > WutheringHeights.report.tmp
 
 # Generate top 1000 words by absolute frequency
 # Step 1: Use awk to print in |absolute_frequency<space>word,freq,relative_freq|.
@@ -63,7 +60,7 @@ awk -F, '{ print $2 " " $0; }' < WutheringHeights.report.tmp | sort -rn | head -
 # Step 3: Sort numerically in descending order (by frequency count).
 # Step 4: Pick the first 1000 entries.
 # Step 5: Reformat the entries into |word,frequency| format.
-sort < CombinedWorks.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort -t, > CombinedWorks.csv
+sort JaneEyre.normalized.tmp WutheringHeights.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort -t, > CombinedWorks.csv
 
 # Join statistics for the top 1000 words for the words from the combined work and JaneEyre.
 # The first command joins words that are common to the top 1000 of the CombinedWork and JaneEyre.
@@ -71,12 +68,12 @@ sort < CombinedWorks.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' 
 # The third command sorts the entire joined dataset again by words.
 join -t, CombinedWorks.csv JaneEyre.report.tmp  > JoinedFrequencies.partial.tmp
 join -t, -v1 CombinedWorks.csv JaneEyre.report.tmp | sed -e 's/$/,0,0/' >> JoinedFrequencies.partial.tmp
-sort -t, < JoinedFrequencies.partial.tmp > JoinedFrequencies.partial_sorted.tmp
+sort -t, JoinedFrequencies.partial.tmp > JoinedFrequencies.partial_sorted.tmp
 
 # Repeat the dataset join (by word) with the WutheringHeights dataset.
 join -t, JoinedFrequencies.partial_sorted.tmp WutheringHeights.report.tmp > JoinedFrequencies.all.tmp
 join -t, -v1 JoinedFrequencies.partial_sorted.tmp WutheringHeights.report.tmp | sed -e 's/$/,0,0/' >> JoinedFrequencies.all.tmp
-sort -t, < JoinedFrequencies.all.tmp > JoinedFrequencies.all_sorted.tmp
+sort -t, JoinedFrequencies.all.tmp > JoinedFrequencies.all_sorted.tmp
 
 # Step 1: Take the difference between the relative_frequencies between the JaneEyre dataset and the WutheringHeights
 # for each of the top 1000 words.

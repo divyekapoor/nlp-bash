@@ -73,19 +73,19 @@ linton
 catherine
 to
 
-real    0m8.202s
-user    0m9.347s
-sys    0m0.120s
+real    0m8.259s
+user    0m9.348s
+sys    0m0.125s
 ```
 
 The time for the parallel version is:
 
 ```bash
-real    0m6.767s
-user    0m9.652s
-sys    0m0.137s
+real    0m5.207s
+user    0m11.251s
+sys    0m0.123s
 ```
 
-which uses about 3% more CPU but gets work done 1.2x faster. Most of the time
-is spent in the expensive sorting of large files. Times are annotated in the
-`frequency_report_parallel.sh` comments.
+which uses about 20% more CPU but gets work done ~1.6x faster. Most of the time
+is spent in the expensive sorting of large files.
+Approximate times are annotated in the `frequency_report_parallel.sh` comments.

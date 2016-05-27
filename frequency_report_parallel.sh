@@ -38,10 +38,6 @@ iconv -c -f utf-8 -t ascii JaneEyre.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  
 iconv -c -f utf-8 -t ascii WutheringHeights.txt | tr 'A-Z' 'a-z' | tr -s "\n\r." " " |  tr -d "#%\$^@*_;?:.,\'\"/-\!()&[]{}" | tr -s ' ' '\n' > WutheringHeights.normalized.tmp &
 wait
 
-# Concatenate the two normalized texts into a single CombinedWork.
-# Time taken: 40ms
-cat JaneEyre.normalized.tmp WutheringHeights.normalized.tmp > CombinedWorks.normalized.tmp &
-
 # Gather statistics from each normalized work in the following format:
 # word,word_frequency,relative_frequency
 # Step 1: Sort the wordlist from each text.
@@ -50,8 +46,17 @@ cat JaneEyre.normalized.tmp WutheringHeights.normalized.tmp > CombinedWorks.norm
 # Step 3b: awk generates a CSV file in the format: |word,freq,relative_freq|.
 # Step 4: Sort each line alphabetically and save it to a temp file. This generates a temp file sorted by words.
 # Time taken: 2.3s
-sort < JaneEyre.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < JaneEyre.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t,  > JaneEyre.report.tmp &
-sort < WutheringHeights.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < WutheringHeights.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t, > WutheringHeights.report.tmp &
+sort JaneEyre.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < JaneEyre.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t,  > JaneEyre.report.tmp &
+sort WutheringHeights.normalized.tmp | uniq -c | awk -F' ' "{ freq = \$1; word = \$2; total_words = $(wc -w < WutheringHeights.normalized.tmp); relative_freq = freq / total_words; print word \",\" freq \",\" relative_freq; }" | sort -t, > WutheringHeights.report.tmp &
+
+# Gather statistics for the combined work (top 1000 words):
+# Step 1: Sort the bag of words.
+# Step 2: Uniquify the bag of words into the |count word| format.
+# Step 3: Sort numerically in descending order (by frequency count).
+# Step 4: Pick the first 1000 entries.
+# Step 5: Reformat the entries into |word,frequency| format.
+# Time taken: 3.8s
+sort JaneEyre.normalized.tmp WutheringHeights.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort -t, > CombinedWorks.csv &
 wait
 
 # Generate top 1000 words by absolute frequency
@@ -62,15 +67,6 @@ wait
 # Time taken: 20ms
 awk -F, '{ print $2 " " $0; }' < JaneEyre.report.tmp | sort -rn | head -1000 | awk '{ print $2 }' > JaneEyre.csv &
 awk -F, '{ print $2 " " $0; }' < WutheringHeights.report.tmp | sort -rn | head -1000 | awk '{ print $2 }' > WutheringHeights.csv &
-
-# Gather statistics for the combined work (top 1000 words):
-# Step 1: Sort the bag of words.
-# Step 2: Uniquify the bag of words into the |count word| format.
-# Step 3: Sort numerically in descending order (by frequency count).
-# Step 4: Pick the first 1000 entries.
-# Step 5: Reformat the entries into |word,frequency| format.
-# Time taken: 3.8s
-sort < CombinedWorks.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort -t, > CombinedWorks.csv &
 wait
 
 # Join statistics for the top 1000 words for the words from the combined work and JaneEyre.
