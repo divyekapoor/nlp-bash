@@ -63,14 +63,14 @@ awk -F, '{ print $2 " " $0; }' < WutheringHeights.report.tmp | sort -rn | head -
 # Step 3: Sort numerically in descending order (by frequency count).
 # Step 4: Pick the first 1000 entries.
 # Step 5: Reformat the entries into |word,frequency| format.
-sort < CombinedWorks.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort > CombinedWorks.report.csv
+sort < CombinedWorks.normalized.tmp | uniq -c | sort -rn | head -1000 | awk -F' ' "{ print \$2 \",\" \$1 }" | sort > CombinedWorks.csv
 
 # Join statistics for the top 1000 words for the words from the combined work and JaneEyre.
 # The first command joins words that are common to the top 1000 of the CombinedWork and JaneEyre.
 # The second command prints words that are present only in the CombinedWork (replacing missing values with 0).
 # The third command sorts the entire joined dataset again by words.
-join -t, CombinedWorks.report.csv JaneEyre.report.tmp  > JoinedFrequencies.partial.tmp
-join -t, -v1 CombinedWorks.report.csv JaneEyre.report.tmp | sed -e 's/$/,0,0/' >> JoinedFrequencies.partial.tmp
+join -t, CombinedWorks.csv JaneEyre.report.tmp  > JoinedFrequencies.partial.tmp
+join -t, -v1 CombinedWorks.csv JaneEyre.report.tmp | sed -e 's/$/,0,0/' >> JoinedFrequencies.partial.tmp
 sort < JoinedFrequencies.partial.tmp > JoinedFrequencies.partial_sorted.tmp
 
 # Repeat the dataset join (by word) with the WutheringHeights dataset.
@@ -101,4 +101,5 @@ echo "Distinctive words for WutheringHeights"
 echo "======================================"
 head -10 DistinctiveWords.report.txt | awk '{ print $2 }'
 
+# Clean up temp files.
 rm *.tmp
