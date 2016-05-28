@@ -13,7 +13,8 @@ $ ./frequency_report_parallel.sh
 License
 =======
 
-MIT
+JaneEyre.txt and WutheringHeights.txt are covered by the [Project Gutenberg License](https://www.gutenberg.org/wiki/Gutenberg:The_Project_Gutenberg_License).
+All other items in this repository are covered by the Creative Commons 0 license documented in the LICENSE file.
 
 Output
 ======
